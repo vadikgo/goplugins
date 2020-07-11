@@ -44,7 +44,7 @@ var (
 )
 
 func readPluginInfo(name string, version string) PluginInfo {
-	if cached, ok := cache[name]; ok {
+	if cached, ok := cache[name+version]; ok {
 		return cached
 	}
 	var url string
@@ -99,7 +99,7 @@ func readPluginInfo(name string, version string) PluginInfo {
 		JenkinsVersion:     manifest["Jenkins-Version"],
 		MinimumJavaVersion: manifest["Minimum-Java-Version"],
 	}
-	cache[manifest["Short-Name"]] = newPluginInfo
+	cache[manifest["Short-Name"]+manifest["Plugin-Version"]] = newPluginInfo
 	return newPluginInfo
 }
 
@@ -121,6 +121,6 @@ func main() {
 
 	info := readPluginInfo("kubernetes", "")
 	fmt.Printf("%v\n", info)
-	info = readPluginInfo("kubernetes", "1.26.3")
+	info = readPluginInfo("kubernetes", "1.25.3")
 	fmt.Printf("%v\n", info)
 }
