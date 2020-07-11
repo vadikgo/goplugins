@@ -63,8 +63,8 @@ var (
 // SetValue Set Value in cache thread safe
 func (c *SafePluginInfo) SetValue(key string, info PluginInfo) {
 	c.mux.Lock()
+	defer c.mux.Unlock()
 	c.plugins[key] = info
-	c.mux.Unlock()
 }
 
 // GetValue returns the current value of the counter for the given key.
@@ -78,10 +78,8 @@ func (c *SafePluginInfo) GetValue(key string) PluginInfo {
 func (c *SafePluginInfo) HasKey(key string) bool {
 	c.mux.Lock()
 	defer c.mux.Unlock()
-	if _, ok := c.plugins[key]; ok {
-		return true
-	}
-	return false
+	_, ok := c.plugins[key]
+	return ok
 }
 
 func readPluginInfo(name string, version string) PluginInfo {
@@ -229,13 +227,10 @@ func main() {
 			// Check dependency plugins can be installed
 			for _, depPlugin := range plgInfo.Dependencies {
 				depPluginInfo := readPluginInfo(depPlugin.Name, depPlugin.Version)
-				if !isAddPlugin(depPluginInfo) {
-					return
+				if isAddPlugin(depPluginInfo) {
+					upgraded.SetValue(depPlugin.Name, readPluginInfo(depPlugin.Name, depPlugin.Version))
 				}
-			}
-			// All depencency can be installed
-			for _, depPlugin := range plgInfo.Dependencies {
-				upgraded.SetValue(depPlugin.Name, readPluginInfo(depPlugin.Name, depPlugin.Version))
+				// fmt.Printf("fail %s %s\n", depPlugin.Name, depPlugin.Version)
 			}
 			upgraded.SetValue(plg.Name, plgInfo)
 		}(plg)
