@@ -109,7 +109,7 @@ func readPluginInfo(name string, version string) PluginInfo {
 }
 
 func isAddPlugin(pluginList map[string]PluginInfo, hpiInfo PluginInfo) bool {
-	// Check is plugin cant be added to pluginList
+	// Check is plugin can be added to pluginList
 	if pl, ok := pluginList[hpiInfo.Name]; ok {
 		v1, _ := version.NewVersion(pl.Version)
 		v2, _ := version.NewVersion(hpiInfo.Version)
@@ -173,7 +173,10 @@ func main() {
 	wg.Wait()
 
 	//fmt.Printf("--- plugins:\n%v\n\n", upgraded)
-	// Show plugins delta
+	// Show plugins delta as text
+	// + - plugin added as dependency
+	// o - plugin version locked
+	// x.x -> y.y - plugin upgraded
 	for key, val := range upgraded {
 		found := false
 		for _, old := range plugins {
