@@ -73,11 +73,20 @@ func readPluginInfo(name string) PluginInfo {
 		log.Fatalf("error: %v", err)
 	}
 
+	var dependencies []ShortPluginInfo
+	for _, dep := range strings.Split(manifest["Plugin-Dependencies"], ",") {
+		// workflow-cps:2.80;resolution:=optional
+		pluginInfo := strings.Split(dep, ";")
+		if (len(pluginInfo) == 1) || (len(pluginInfo) > 1 && pluginInfo[1] != "resolution:=optional") {
+			pluginNameVer := strings.Split(pluginInfo[0], ":")
+			dependencies = append(dependencies, ShortPluginInfo{Name: pluginNameVer[0], Version: pluginNameVer[1]})
+		}
+	}
 	return PluginInfo{
 		Name:               manifest["Short-Name"],
 		LongName:           manifest["Long-Name"],
 		Version:            manifest["Plugin-Version"],
-		Dependencies:       nil,
+		Dependencies:       dependencies,
 		JenkinsVersion:     manifest["Jenkins-Version"],
 		MinimumJavaVersion: manifest["Minimum-Java-Version"],
 	}
