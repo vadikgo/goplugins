@@ -108,6 +108,22 @@ func readPluginInfo(name string, version string) PluginInfo {
 	return newPluginInfo
 }
 
+func isAddPlugin(pluginList map[string]PluginInfo, hpiInfo PluginInfo) bool {
+	// Check is plugin cant be added to pluginList
+	if pl, ok := pluginList[hpiInfo.Name]; ok {
+		v1, _ := version.NewVersion(pl.Version)
+		v2, _ := version.NewVersion(hpiInfo.Version)
+		if v1.GreaterThan(v2) {
+			return false
+		}
+	}
+	jv, _ := version.NewVersion(hpiInfo.JenkinsVersion)
+	if jenkinsVersion.LessThan(jv) {
+		return false
+	}
+	return true
+}
+
 func main() {
 	yamlFile, err := ioutil.ReadFile(pluginsYaml)
 	if err != nil {
@@ -122,7 +138,7 @@ func main() {
 	if err := path.Read(strings.NewReader(string(yamlFile)), &plugins); err != nil {
 		log.Fatalf("error: %v", err)
 	}
-	fmt.Printf("--- plugins:\n%v\n\n", plugins)
+	//fmt.Printf("--- plugins:\n%v\n\n", plugins)
 
 	upgraded := make(map[string]PluginInfo)
 	var wg sync.WaitGroup
@@ -130,32 +146,54 @@ func main() {
 		wg.Add(1)
 		go func(plg Plugin) {
 			defer wg.Done()
-			var hpiInfo PluginInfo
+
+			var plugVer string
 			if plg.Lock {
-				hpiInfo = readPluginInfo(plg.Name, plg.Version)
+				plugVer = plg.Version
 			} else {
-				hpiInfo = readPluginInfo(plg.Name, "")
+				plugVer = ""
 			}
-			if pl, ok := upgraded[plg.Name]; ok {
-				v1, _ := version.NewVersion(pl.Version)
-				v2, _ := version.NewVersion(hpiInfo.Version)
-				jv, _ := version.NewVersion(hpiInfo.JenkinsVersion)
-				if v1.LessThan(v2) && jenkinsVersion.GreaterThan(jv) {
-					upgraded[plg.Name] = hpiInfo
+			plgInfo := readPluginInfo(plg.Name, plugVer)
+			if isAddPlugin(upgraded, plgInfo) {
+				// Check dependency plugins can be installed
+				for _, depPlugin := range plgInfo.Dependencies {
+					depPluginInfo := readPluginInfo(depPlugin.Name, depPlugin.Version)
+					if !isAddPlugin(upgraded, depPluginInfo) {
+						return
+					}
 				}
-			} else {
-				v1, _ := version.NewVersion(plg.Version)
-				v2, _ := version.NewVersion(hpiInfo.Version)
-				jv, _ := version.NewVersion(hpiInfo.JenkinsVersion)
-				if v1.LessThan(v2) && jenkinsVersion.GreaterThan(jv) {
-					upgraded[plg.Name] = hpiInfo
-				} else {
-					upgraded[plg.Name] = readPluginInfo(plg.Name, plg.Version)
+				// All depencency can be installed
+				for _, depPlugin := range plgInfo.Dependencies {
+					upgraded[depPlugin.Name] = readPluginInfo(depPlugin.Name, depPlugin.Version)
 				}
+				upgraded[plg.Name] = plgInfo
 			}
 		}(plg)
 	}
 	wg.Wait()
 
-	fmt.Printf("--- plugins:\n%v\n\n", upgraded)
+	//fmt.Printf("--- plugins:\n%v\n\n", upgraded)
+	// Show plugins delta
+	for key, val := range upgraded {
+		found := false
+		for _, old := range plugins {
+			if old.Name == key {
+				found = true
+				if old.Version != val.Version {
+					fmt.Printf("%s: %s -> %s\n", old.Name, old.Version, val.Version)
+
+				} else {
+					if old.Lock {
+						fmt.Printf("%s: o %s\n", old.Name, old.Version)
+					} else {
+						fmt.Printf("%s: %s\n", old.Name, old.Version)
+					}
+				}
+			}
+
+		}
+		if !found {
+			fmt.Printf("%s: + %s\n", val.Name, val.Version)
+		}
+	}
 }
