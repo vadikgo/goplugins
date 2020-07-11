@@ -38,11 +38,21 @@ type PluginInfo struct {
 }
 
 var (
-	pluginsBaseURL = "https://updates.jenkins-ci.org/latest"
+	latestURL  = "https://updates.jenkins-ci.org/latest"
+	versionURL = "https://updates.jenkins-ci.org/download/plugins"
+	cache      = make(map[string]PluginInfo)
 )
 
-func readPluginInfo(name string) PluginInfo {
-	url := fmt.Sprintf("%s/%s", pluginsBaseURL, name)
+func readPluginInfo(name string, version string) PluginInfo {
+	if cached, ok := cache[name]; ok {
+		return cached
+	}
+	var url string
+	if version != "" {
+		url = fmt.Sprintf("%s/%s/%s/%s.hpi", versionURL, name, version, name)
+	} else {
+		url = fmt.Sprintf("%s/%s.hpi", latestURL, name)
+	}
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatalf("error: %v", err)
@@ -51,24 +61,23 @@ func readPluginInfo(name string) PluginInfo {
 	defer resp.Body.Close()
 	fmt.Println("status", resp.Status)
 	if resp.StatusCode != 200 {
-		log.Fatalf("error: %v", err)
+		log.Fatalf("error: %v get URL %s", err, url)
 	}
 
-	// Create the file
-	out, err := os.Create(name)
+	// Download plugin to temporary file
+	hpifile, err := ioutil.TempFile("", "jenkins")
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
-	defer out.Close()
+	defer os.Remove(hpifile.Name())
 
 	// Write the body to file
-	_, err = io.Copy(out, resp.Body)
+	_, err = io.Copy(hpifile, resp.Body)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
 
-	defer os.Remove(name)
-	manifest, err := jar.ReadFile(name)
+	manifest, err := jar.ReadFile(hpifile.Name())
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
@@ -82,7 +91,7 @@ func readPluginInfo(name string) PluginInfo {
 			dependencies = append(dependencies, ShortPluginInfo{Name: pluginNameVer[0], Version: pluginNameVer[1]})
 		}
 	}
-	return PluginInfo{
+	newPluginInfo := PluginInfo{
 		Name:               manifest["Short-Name"],
 		LongName:           manifest["Long-Name"],
 		Version:            manifest["Plugin-Version"],
@@ -90,6 +99,8 @@ func readPluginInfo(name string) PluginInfo {
 		JenkinsVersion:     manifest["Jenkins-Version"],
 		MinimumJavaVersion: manifest["Minimum-Java-Version"],
 	}
+	cache[manifest["Short-Name"]] = newPluginInfo
+	return newPluginInfo
 }
 
 func main() {
@@ -108,9 +119,8 @@ func main() {
 	}
 	fmt.Printf("--- plugins:\n%v\n\n", plugins)
 
-	info := readPluginInfo("kubernetes.hpi")
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-	fmt.Printf("%v", info)
+	info := readPluginInfo("kubernetes", "")
+	fmt.Printf("%v\n", info)
+	info = readPluginInfo("kubernetes", "1.26.3")
+	fmt.Printf("%v\n", info)
 }
