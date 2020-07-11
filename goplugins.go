@@ -8,7 +8,8 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"sync"
+
+	"github.com/zenthangplus/goccm"
 
 	"github.com/goccy/go-yaml"
 	"github.com/hashicorp/go-version"
@@ -45,6 +46,7 @@ var (
 	cache             = make(map[string]PluginInfo)
 	jenkinsVersion, _ = version.NewVersion("2.222.2")
 	pluginsYaml       = "jenkins_plugins_test.yml"
+	gomax             = 16 // goroutines to run concurrently
 )
 
 func readPluginInfo(name string, version string) PluginInfo {
@@ -141,11 +143,13 @@ func main() {
 	//fmt.Printf("--- plugins:\n%v\n\n", plugins)
 
 	upgraded := make(map[string]PluginInfo)
-	var wg sync.WaitGroup
+
+	// Limit 16 goroutines to run concurrently.
+	c := goccm.New(gomax)
 	for _, plg := range plugins {
-		wg.Add(1)
+		c.Wait()
 		go func(plg Plugin) {
-			defer wg.Done()
+			defer c.Done()
 
 			var plugVer string
 			if plg.Lock {
@@ -170,7 +174,7 @@ func main() {
 			}
 		}(plg)
 	}
-	wg.Wait()
+	c.WaitAllDone()
 
 	//fmt.Printf("--- plugins:\n%v\n\n", upgraded)
 	// Show plugins delta as text
