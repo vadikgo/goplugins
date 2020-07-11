@@ -1,0 +1,26 @@
+jenkins_plugins:
+- name: ace-editor
+  title: 'JavaScript GUI Lib: ACE Editor bundle plugin'
+  version: '1.1'
+- name: active-directory
+  title: Jenkins Active Directory plugin
+  version: '2.16'
+- name: allure-jenkins-plugin
+  title: Allure Jenkins Plugin
+  version: 2.28.1
+- name: analysis-core
+  title: Static Analysis Utilities
+  version: '1.96'
+- name: ansible
+  title: Jenkins Ansible plugin
+  version: '1.0'
+- name: ansicolor
+  title: AnsiColor
+  version: 0.5.2
+  version_lock: true
+- name: ant
+  title: Ant Plugin
+  version: '1.11'
+- name: antisamy-markup-formatter
+  title: OWASP Markup Formatter Plugin
+  version: '1.8'
