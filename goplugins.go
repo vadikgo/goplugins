@@ -8,8 +8,10 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/goccy/go-yaml"
+	"github.com/hashicorp/go-version"
 	jar "github.com/vadikgo/goplugins/lib"
 )
 
@@ -38,9 +40,11 @@ type PluginInfo struct {
 }
 
 var (
-	latestURL  = "https://updates.jenkins-ci.org/latest"
-	versionURL = "https://updates.jenkins-ci.org/download/plugins"
-	cache      = make(map[string]PluginInfo)
+	latestURL         = "https://updates.jenkins-ci.org/latest"
+	versionURL        = "https://updates.jenkins-ci.org/download/plugins"
+	cache             = make(map[string]PluginInfo)
+	jenkinsVersion, _ = version.NewVersion("2.222.2")
+	pluginsYaml       = "jenkins_plugins_test.yml"
 )
 
 func readPluginInfo(name string, version string) PluginInfo {
@@ -59,7 +63,6 @@ func readPluginInfo(name string, version string) PluginInfo {
 	}
 
 	defer resp.Body.Close()
-	fmt.Println("status", resp.Status)
 	if resp.StatusCode != 200 {
 		log.Fatalf("error: %v get URL %s", err, url)
 	}
@@ -82,13 +85,15 @@ func readPluginInfo(name string, version string) PluginInfo {
 		log.Fatalf("error: %v", err)
 	}
 
-	var dependencies []ShortPluginInfo
-	for _, dep := range strings.Split(manifest["Plugin-Dependencies"], ",") {
-		// workflow-cps:2.80;resolution:=optional
-		pluginInfo := strings.Split(dep, ";")
-		if (len(pluginInfo) == 1) || (len(pluginInfo) > 1 && pluginInfo[1] != "resolution:=optional") {
-			pluginNameVer := strings.Split(pluginInfo[0], ":")
-			dependencies = append(dependencies, ShortPluginInfo{Name: pluginNameVer[0], Version: pluginNameVer[1]})
+	dependencies := make([]ShortPluginInfo, 0)
+	if pluginDependencies, ok := manifest["Plugin-Dependencies"]; ok {
+		for _, dep := range strings.Split(pluginDependencies, ",") {
+			// workflow-cps:2.80;resolution:=optional
+			pluginInfo := strings.Split(dep, ";")
+			if (len(pluginInfo) == 1) || (len(pluginInfo) > 1 && pluginInfo[1] != "resolution:=optional") {
+				pluginNameVer := strings.Split(pluginInfo[0], ":")
+				dependencies = append(dependencies, ShortPluginInfo{Name: pluginNameVer[0], Version: pluginNameVer[1]})
+			}
 		}
 	}
 	newPluginInfo := PluginInfo{
@@ -104,7 +109,7 @@ func readPluginInfo(name string, version string) PluginInfo {
 }
 
 func main() {
-	yamlFile, err := ioutil.ReadFile("jenkins_plugins.yml")
+	yamlFile, err := ioutil.ReadFile(pluginsYaml)
 	if err != nil {
 		log.Fatalf("Error reading YAML file: %s\n", err)
 	}
@@ -119,8 +124,38 @@ func main() {
 	}
 	fmt.Printf("--- plugins:\n%v\n\n", plugins)
 
-	info := readPluginInfo("kubernetes", "")
-	fmt.Printf("%v\n", info)
-	info = readPluginInfo("kubernetes", "1.25.3")
-	fmt.Printf("%v\n", info)
+	upgraded := make(map[string]PluginInfo)
+	var wg sync.WaitGroup
+	for _, plg := range plugins {
+		wg.Add(1)
+		go func(plg Plugin) {
+			defer wg.Done()
+			var hpiInfo PluginInfo
+			if plg.Lock {
+				hpiInfo = readPluginInfo(plg.Name, plg.Version)
+			} else {
+				hpiInfo = readPluginInfo(plg.Name, "")
+			}
+			if pl, ok := upgraded[plg.Name]; ok {
+				v1, _ := version.NewVersion(pl.Version)
+				v2, _ := version.NewVersion(hpiInfo.Version)
+				jv, _ := version.NewVersion(hpiInfo.JenkinsVersion)
+				if v1.LessThan(v2) && jenkinsVersion.GreaterThan(jv) {
+					upgraded[plg.Name] = hpiInfo
+				}
+			} else {
+				v1, _ := version.NewVersion(plg.Version)
+				v2, _ := version.NewVersion(hpiInfo.Version)
+				jv, _ := version.NewVersion(hpiInfo.JenkinsVersion)
+				if v1.LessThan(v2) && jenkinsVersion.GreaterThan(jv) {
+					upgraded[plg.Name] = hpiInfo
+				} else {
+					upgraded[plg.Name] = readPluginInfo(plg.Name, plg.Version)
+				}
+			}
+		}(plg)
+	}
+	wg.Wait()
+
+	fmt.Printf("--- plugins:\n%v\n\n", upgraded)
 }
