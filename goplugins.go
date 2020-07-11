@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/zenthangplus/goccm"
 
@@ -42,18 +43,50 @@ type PluginInfo struct {
 	MinimumJavaVersion string
 }
 
+// SafePluginInfo Thread safe plugins cache
+type SafePluginInfo struct {
+	mux     sync.Mutex
+	plugins map[string]PluginInfo
+}
+
 var (
 	latestURL      = "https://updates.jenkins-ci.org/latest"
 	versionURL     = "https://updates.jenkins-ci.org/download/plugins"
-	cache          = make(map[string]PluginInfo)
+	cache          = SafePluginInfo{plugins: make(map[string]PluginInfo)}
+	upgraded       = SafePluginInfo{plugins: make(map[string]PluginInfo)}
 	jenkinsVersion = "2.222.2"
-	pluginsYaml    = "jenkins_plugins.yml"
+	pluginsYaml    = "jenkins_plugins_test.yml"
 	gomax          = runtime.GOMAXPROCS(0) * 2 // goroutines to run concurrently
+	// gomax = 1
 )
 
+// SetValue Set Value in cache thread safe
+func (c *SafePluginInfo) SetValue(key string, info PluginInfo) {
+	c.mux.Lock()
+	c.plugins[key] = info
+	c.mux.Unlock()
+}
+
+// GetValue returns the current value of the counter for the given key.
+func (c *SafePluginInfo) GetValue(key string) PluginInfo {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	return c.plugins[key]
+}
+
+// HasKey check key exists
+func (c *SafePluginInfo) HasKey(key string) bool {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	if _, ok := c.plugins[key]; ok {
+		return true
+	}
+	return false
+}
+
 func readPluginInfo(name string, version string) PluginInfo {
-	if cached, ok := cache[name+version]; ok {
-		return cached
+	if cache.HasKey(name + version) {
+		return cache.GetValue(name + version)
 	}
 	var url string
 	if version != "" {
@@ -78,7 +111,7 @@ func readPluginInfo(name string, version string) PluginInfo {
 			JenkinsVersion:     jenkinsVersion,
 			MinimumJavaVersion: "1.8",
 		}
-		cache[name+version] = newPluginInfo
+		cache.SetValue(name+version, newPluginInfo)
 		return newPluginInfo
 	}
 	if resp.StatusCode != 200 {
@@ -125,14 +158,14 @@ func readPluginInfo(name string, version string) PluginInfo {
 		JenkinsVersion:     manifest["Jenkins-Version"],
 		MinimumJavaVersion: manifest["Minimum-Java-Version"],
 	}
-	cache[manifest["Short-Name"]+manifest["Plugin-Version"]] = newPluginInfo
+	cache.SetValue(manifest["Short-Name"]+manifest["Plugin-Version"], newPluginInfo)
 	return newPluginInfo
 }
 
-func isAddPlugin(pluginList map[string]PluginInfo, hpiInfo PluginInfo) bool {
+func isAddPlugin(hpiInfo PluginInfo) bool {
 	// Check is plugin can be added to pluginList
-	if pl, ok := pluginList[hpiInfo.Name]; ok {
-		v1, _ := version.NewVersion(pl.Version)
+	if upgraded.HasKey(hpiInfo.Name) {
+		v1, _ := version.NewVersion(upgraded.GetValue(hpiInfo.Name).Version)
 		v2, _ := version.NewVersion(hpiInfo.Version)
 		if v1.GreaterThan(v2) {
 			return false
@@ -166,9 +199,7 @@ func main() {
 	if err := path.Read(strings.NewReader(string(yamlFile)), &plugins); err != nil {
 		log.Fatalf("error: %v", err)
 	}
-	//fmt.Printf("--- plugins:\n%v\n\n", plugins)
-
-	upgraded := make(map[string]PluginInfo)
+	// fmt.Printf("--- plugins:\n%v\n\n", plugins)
 
 	// Limit 16 goroutines to run concurrently.
 	c := goccm.New(gomax)
@@ -187,31 +218,38 @@ func main() {
 			if plgInfo.Version == "" {
 				plgInfo.Version = plg.Version
 			}
-			if isAddPlugin(upgraded, plgInfo) {
-				// Check dependency plugins can be installed
-				for _, depPlugin := range plgInfo.Dependencies {
-					depPluginInfo := readPluginInfo(depPlugin.Name, depPlugin.Version)
-					if !isAddPlugin(upgraded, depPluginInfo) {
-						return
-					}
+
+			if !isAddPlugin(plgInfo) {
+				// Copy old plugin if cant update to latest
+				plgInfo = readPluginInfo(plg.Name, plg.Version)
+				if plgInfo.Version == "" {
+					plgInfo.Version = plg.Version
 				}
-				// All depencency can be installed
-				for _, depPlugin := range plgInfo.Dependencies {
-					upgraded[depPlugin.Name] = readPluginInfo(depPlugin.Name, depPlugin.Version)
-				}
-				upgraded[plg.Name] = plgInfo
 			}
+			// Check dependency plugins can be installed
+			for _, depPlugin := range plgInfo.Dependencies {
+				depPluginInfo := readPluginInfo(depPlugin.Name, depPlugin.Version)
+				if !isAddPlugin(depPluginInfo) {
+					return
+				}
+			}
+			// All depencency can be installed
+			for _, depPlugin := range plgInfo.Dependencies {
+				upgraded.SetValue(depPlugin.Name, readPluginInfo(depPlugin.Name, depPlugin.Version))
+			}
+			upgraded.SetValue(plg.Name, plgInfo)
 		}(plg)
 	}
 	c.WaitAllDone()
 
-	keys := make([]string, 0, len(upgraded))
-	for k := range upgraded {
+	keys := make([]string, 0, len(upgraded.plugins))
+	for k := range upgraded.plugins {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
 
-	//fmt.Printf("--- plugins:\n%v\n\n", upgraded)
+	// fmt.Printf("--- plugins:\n%v\n\n", upgraded)
+
 	// Show plugins delta as text
 	// + - plugin added as dependency
 	// o - plugin version locked
@@ -221,8 +259,8 @@ func main() {
 		for _, old := range plugins {
 			if old.Name == key {
 				found = true
-				if old.Version != upgraded[key].Version {
-					fmt.Printf("%s: %s -> %s\n", old.Name, old.Version, upgraded[key].Version)
+				if old.Version != upgraded.GetValue(key).Version {
+					fmt.Printf("%s: %s -> %s\n", old.Name, old.Version, upgraded.GetValue(key).Version)
 				} else {
 					if old.Lock {
 						fmt.Printf("%s: o %s\n", old.Name, old.Version)
@@ -234,7 +272,7 @@ func main() {
 
 		}
 		if !found {
-			fmt.Printf("%s: + %s\n", upgraded[key].Name, upgraded[key].Version)
+			fmt.Printf("%s: + %s\n", upgraded.GetValue(key).Name, upgraded.GetValue(key).Version)
 		}
 	}
 }
