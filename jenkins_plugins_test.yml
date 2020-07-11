@@ -24,3 +24,9 @@ jenkins_plugins:
 - name: antisamy-markup-formatter
   title: OWASP Markup Formatter Plugin
   version: '1.8'
+- name: git
+  title: Jenkins Git plugin
+  version: 4.2.1
+- name: git-client
+  title: Jenkins Git client plugin
+  version: 3.1.1
