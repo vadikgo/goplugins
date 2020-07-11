@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"sort"
 	"strings"
 
 	"github.com/zenthangplus/goccm"
@@ -42,12 +43,12 @@ type PluginInfo struct {
 }
 
 var (
-	latestURL         = "https://updates.jenkins-ci.org/latest"
-	versionURL        = "https://updates.jenkins-ci.org/download/plugins"
-	cache             = make(map[string]PluginInfo)
-	jenkinsVersion, _ = version.NewVersion("2.222.2")
-	pluginsYaml       = "jenkins_plugins_test.yml"
-	gomax             = runtime.GOMAXPROCS(0) * 2 // goroutines to run concurrently
+	latestURL      = "https://updates.jenkins-ci.org/latest"
+	versionURL     = "https://updates.jenkins-ci.org/download/plugins"
+	cache          = make(map[string]PluginInfo)
+	jenkinsVersion = "2.222.2"
+	pluginsYaml    = "jenkins_plugins.yml"
+	gomax          = runtime.GOMAXPROCS(0) * 2 // goroutines to run concurrently
 )
 
 func readPluginInfo(name string, version string) PluginInfo {
@@ -66,6 +67,20 @@ func readPluginInfo(name string, version string) PluginInfo {
 	}
 
 	defer resp.Body.Close()
+
+	if resp.StatusCode == 404 {
+		// Custom plugins workaround
+		newPluginInfo := PluginInfo{
+			Name:               name,
+			LongName:           name,
+			Version:            version,
+			Dependencies:       make([]ShortPluginInfo, 0),
+			JenkinsVersion:     jenkinsVersion,
+			MinimumJavaVersion: "1.8",
+		}
+		cache[name+version] = newPluginInfo
+		return newPluginInfo
+	}
 	if resp.StatusCode != 200 {
 		log.Fatalf("error: %v get URL %s", err, url)
 	}
@@ -99,6 +114,9 @@ func readPluginInfo(name string, version string) PluginInfo {
 			}
 		}
 	}
+	if _, ok := manifest["Jenkins-Version"]; !ok {
+		manifest["Jenkins-Version"] = jenkinsVersion
+	}
 	newPluginInfo := PluginInfo{
 		Name:               manifest["Short-Name"],
 		LongName:           manifest["Long-Name"],
@@ -120,8 +138,15 @@ func isAddPlugin(pluginList map[string]PluginInfo, hpiInfo PluginInfo) bool {
 			return false
 		}
 	}
-	jv, _ := version.NewVersion(hpiInfo.JenkinsVersion)
-	if jenkinsVersion.LessThan(jv) {
+	jv, err := version.NewVersion(hpiInfo.JenkinsVersion)
+	if err != nil {
+		log.Fatalf("error: %v %s", err, hpiInfo.JenkinsVersion)
+	}
+	currentJenkins, err := version.NewVersion(jenkinsVersion)
+	if err != nil {
+		log.Fatalf("error: %v %s", err, jenkinsVersion)
+	}
+	if currentJenkins.LessThan(jv) {
 		return false
 	}
 	return true
@@ -159,6 +184,9 @@ func main() {
 				plugVer = ""
 			}
 			plgInfo := readPluginInfo(plg.Name, plugVer)
+			if plgInfo.Version == "" {
+				plgInfo.Version = plg.Version
+			}
 			if isAddPlugin(upgraded, plgInfo) {
 				// Check dependency plugins can be installed
 				for _, depPlugin := range plgInfo.Dependencies {
@@ -177,19 +205,24 @@ func main() {
 	}
 	c.WaitAllDone()
 
+	keys := make([]string, 0, len(upgraded))
+	for k := range upgraded {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
 	//fmt.Printf("--- plugins:\n%v\n\n", upgraded)
 	// Show plugins delta as text
 	// + - plugin added as dependency
 	// o - plugin version locked
 	// x.x -> y.y - plugin upgraded
-	for key, val := range upgraded {
+	for _, key := range keys {
 		found := false
 		for _, old := range plugins {
 			if old.Name == key {
 				found = true
-				if old.Version != val.Version {
-					fmt.Printf("%s: %s -> %s\n", old.Name, old.Version, val.Version)
-
+				if old.Version != upgraded[key].Version {
+					fmt.Printf("%s: %s -> %s\n", old.Name, old.Version, upgraded[key].Version)
 				} else {
 					if old.Lock {
 						fmt.Printf("%s: o %s\n", old.Name, old.Version)
@@ -201,7 +234,7 @@ func main() {
 
 		}
 		if !found {
-			fmt.Printf("%s: + %s\n", val.Name, val.Version)
+			fmt.Printf("%s: + %s\n", upgraded[key].Name, upgraded[key].Version)
 		}
 	}
 }
