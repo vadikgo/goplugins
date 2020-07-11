@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"runtime"
 	"strings"
 
 	"github.com/zenthangplus/goccm"
@@ -46,7 +47,7 @@ var (
 	cache             = make(map[string]PluginInfo)
 	jenkinsVersion, _ = version.NewVersion("2.222.2")
 	pluginsYaml       = "jenkins_plugins_test.yml"
-	gomax             = 16 // goroutines to run concurrently
+	gomax             = runtime.GOMAXPROCS(0) * 2 // goroutines to run concurrently
 )
 
 func readPluginInfo(name string, version string) PluginInfo {
