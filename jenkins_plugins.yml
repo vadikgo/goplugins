@@ -1,0 +1,673 @@
+jenkins_plugins:
+- name: ace-editor
+  title: 'JavaScript GUI Lib: ACE Editor bundle plugin'
+  version: '1.1'
+- name: active-directory
+  title: Jenkins Active Directory plugin
+  version: '2.16'
+- name: allure-jenkins-plugin
+  title: Allure Jenkins Plugin
+  version: 2.28.1
+- name: analysis-core
+  title: Static Analysis Utilities
+  version: '1.96'
+- name: ansible
+  title: Jenkins Ansible plugin
+  version: '1.0'
+- name: ansicolor
+  title: AnsiColor
+  version: 0.5.2
+- name: ant
+  title: Ant Plugin
+  version: '1.11'
+- name: antisamy-markup-formatter
+  title: OWASP Markup Formatter Plugin
+  version: '1.8'
+- name: apache-httpcomponents-client-4-api
+  title: Jenkins Apache HttpComponents Client 4.x API Plugin
+  version: 4.5.10-2.0
+- name: artifactdeployer
+  title: Jenkins Artifact Deployer Plug-in
+  version: '1.2'
+- name: audit-log
+  title: Audit Log Plugin
+  version: '1.0'
+- name: audit-trail
+  title: Audit Trail
+  version: '3.3'
+- name: authentication-tokens
+  title: Authentication Tokens API Plugin
+  version: '1.3'
+- name: authorize-project
+  title: Authorize Project
+  version: 1.3.0
+- name: badge
+  title: Badge
+  version: '1.8'
+- name: blueocean
+  title: Blue Ocean
+  version: 1.9.0
+- name: blueocean-autofavorite
+  title: Autofavorite for Blue Ocean
+  version: 1.2.3
+- name: blueocean-bitbucket-pipeline
+  title: Bitbucket Pipeline for Blue Ocean
+  version: 1.9.0
+- name: blueocean-commons
+  title: Common API for Blue Ocean
+  version: 1.9.0
+- name: blueocean-config
+  title: Config API for Blue Ocean
+  version: 1.9.0
+- name: blueocean-core-js
+  title: Blue Ocean Core JS
+  version: 1.9.0
+- name: blueocean-dashboard
+  title: Dashboard for Blue Ocean
+  version: 1.9.0
+- name: blueocean-display-url
+  title: Display URL for Blue Ocean
+  version: 2.2.0
+- name: blueocean-events
+  title: Events API for Blue Ocean
+  version: 1.9.0
+- name: blueocean-git-pipeline
+  title: Git Pipeline for Blue Ocean
+  version: 1.9.0
+- name: blueocean-github-pipeline
+  title: GitHub Pipeline for Blue Ocean
+  version: 1.9.0
+- name: blueocean-i18n
+  title: i18n for Blue Ocean
+  version: 1.9.0
+- name: blueocean-jira
+  title: JIRA Integration for Blue Ocean
+  version: 1.9.0
+- name: blueocean-jwt
+  title: JWT for Blue Ocean
+  version: 1.9.0
+- name: blueocean-personalization
+  title: Personalization for Blue Ocean
+  version: 1.9.0
+- name: blueocean-pipeline-api-impl
+  title: Pipeline implementation for Blue Ocean
+  version: 1.9.0
+- name: blueocean-pipeline-editor
+  title: Blue Ocean Pipeline Editor
+  version: 1.9.0
+- name: blueocean-pipeline-scm-api
+  title: Pipeline SCM API for Blue Ocean
+  version: 1.9.0
+- name: blueocean-rest
+  title: REST API for Blue Ocean
+  version: 1.9.0
+- name: blueocean-rest-impl
+  title: REST Implementation for Blue Ocean
+  version: 1.9.0
+- name: blueocean-web
+  title: Web for Blue Ocean
+  version: 1.9.0
+- name: bootstrap
+  title: 'JavaScript GUI Lib: Twitter Bootstrap bundle plugin'
+  version: 1.3.2
+- name: bouncycastle-api
+  title: bouncycastle API Plugin
+  version: '2.18'
+- name: branch-api
+  title: Branch API Plugin
+  version: 2.5.5
+- name: build-blocker-plugin
+  title: Build Blocker Plugin
+  version: 1.7.3
+- name: build-name-setter
+  title: Build Name and Description Setter
+  version: 1.7.1
+- name: build-timeout
+  title: Build Timeout
+  version: '1.19'
+- name: build-token-root
+  title: Build Authorization Token Root Plugin
+  version: '1.6'
+- name: build-user-vars-plugin
+  title: Jenkins user build vars plugin
+  version: '1.5'
+- name: built-on-column
+  title: built-on-column
+  version: '1.1'
+- name: call-remote-job-plugin
+  title: Call Remote Job Plugin
+  version: 1.0.21
+- name: cloud-stats
+  title: Cloud Statistics Plugin
+  version: '0.25'
+- name: cloudbees-bitbucket-branch-source
+  title: Bitbucket Branch Source Plugin
+  version: 2.7.0
+- name: cloudbees-folder
+  title: Folders Plugin
+  version: '6.11.1'
+- name: command-launcher
+  title: Command Agent Launcher Plugin
+  version: '1.4'
+- name: compact-columns
+  title: Compact Columns
+  version: '1.12'
+- name: conditional-buildstep
+  title: Conditional BuildStep
+  version: 1.3.6
+- name: config-file-provider
+  title: Config File Provider Plugin
+  version: 3.6.3
+- name: configuration-as-code
+  title: Configuration as Code Plugin
+  version: '1.35'
+- name: confluence-publisher
+  title: Confluence Publisher
+  version: 2.0.5
+- name: copyartifact
+  title: Copy Artifact Plugin
+  version: '1.44'
+- name: credentials
+  title: Credentials Plugin
+  version: 2.3.7
+- name: credentials-binding
+  title: Credentials Binding Plugin
+  version: '1.23'
+- name: custom-tools-plugin
+  title: Jenkins Custom Tools Plugin
+  version: '0.7'
+- name: cvs
+  title: Jenkins CVS Plug-in
+  version: '2.16'
+- name: dashboard-view
+  title: Dashboard View
+  version: '2.12'
+- name: description-setter
+  title: Jenkins description setter plugin
+  version: '1.10'
+- name: display-url-api
+  title: Display URL API
+  version: 2.3.2
+- name: docker-commons
+  title: Docker Commons Plugin
+  version: '1.13'
+- name: docker-java-api
+  title: Docker API Plugin
+  version: 3.0.14
+- name: docker-workflow
+  title: Docker Pipeline
+  version: '1.17'
+- name: dtkit-api
+  title: DTKit 2 API.
+  version: 2.1.2
+- name: durable-task
+  title: Durable Task Plugin
+  version: '1.33'
+- name: email-ext
+  title: Email Extension Plugin
+  version: '2.68'
+- name: email-ext-recipients-column
+  title: Email Ext Recipients Column Plugin
+  version: '1.0'
+- name: embeddable-build-status
+  title: Embeddable Build Status Plugin
+  version: 2.0.3
+- name: env-checks
+  title: SBT Jenkins Environment Checks Plugin
+  version: 1.8.0
+- name: envinject
+  title: Environment Injector Plugin
+  version: 2.3.0
+- name: envinject-api
+  title: EnvInject API Plugin
+  version: '1.7'
+- name: extended-choice-parameter
+  title: Extended Choice Parameter Plug-In
+  version: '0.78'
+- name: extended-read-permission
+  title: Jenkins Extended Read Permission Plugin
+  version: '3.0'
+- name: extensible-choice-parameter
+  title: Extensible Choice Parameter plugin
+  version: 1.6.0
+- name: external-monitor-job
+  title: External Monitor Job Type Plugin
+  version: '1.7'
+- name: extra-tool-installers
+  title: Jenkins Extra Tool Installers Plugin
+  version: '0.5'
+- name: ez-templates
+  title: EZ Templates
+  version: 1.3.2
+- name: favorite
+  title: Favorite
+  version: 2.3.2
+- name: file-operations
+  title: File Operations Plugin
+  version: '1.8'
+- name: filesystem-list-parameter-plugin
+  title: Jenkins Filesystem List Parameter Plug-in
+  version: 0.0.5
+- name: git
+  title: Jenkins Git plugin
+  version: 4.2.1
+- name: git-client
+  title: Jenkins Git client plugin
+  version: 3.1.1
+- name: git-parameter
+  title: Git Parameter Plug-In
+  version: 0.9.12
+- name: git-server
+  title: Jenkins GIT server Plugin
+  version: '1.9'
+- name: github
+  title: GitHub plugin
+  version: 1.29.5
+- name: github-api
+  title: GitHub API Plugin
+  version: '1.106'
+- name: github-branch-source
+  title: GitHub Branch Source Plugin
+  version: 2.6.0
+- name: gitlab-plugin
+  title: GitLab Plugin
+  version: 1.5.13
+- name: global-build-stats
+  title: Hudson global-build-stats plugin
+  version: '1.5'
+- name: gradle
+  title: Gradle Plugin
+  version: '1.34'
+- name: greenballs
+  title: Green Balls
+  version: '1.15'
+- name: groovy
+  title: Groovy
+  version: '2.2'
+- name: groovy-postbuild
+  title: Groovy Postbuild
+  version: '2.5'
+- name: h2-api
+  title: H2 API Plugin
+  version: 1.4.199
+- name: handlebars
+  title: 'JavaScript GUI Lib: Handlebars bundle plugin'
+  version: 1.1.1
+- name: handy-uri-templates-2-api
+  title: Handy Uri Templates 2.x API Plugin
+  version: 2.1.8-1.0
+- name: hidden-parameter
+  title: Hidden Parameter plugin
+  version: 0.0.4
+- name: hp-application-automation-tools-plugin
+  title: Micro Focus Application Automation Tools
+  version: 5.8.6-beta
+- name: htmlpublisher
+  title: HTML Publisher plugin
+  version: '1.21'
+- name: http_request
+  title: HTTP Request Plugin
+  version: 1.8.24
+- name: icon-shim
+  title: Icon Shim Plugin
+  version: 2.0.3
+- name: jackson2-api
+  title: Jackson 2 API Plugin
+  version: 2.10.2
+- name: javadoc
+  title: Javadoc Plugin
+  version: '1.5'
+- name: jdk-tool
+  title: JDK Tool Plugin
+  version: '1.4'
+- name: jenkins-design-language
+  title: Jenkins Design Language
+  version: 1.9.0
+- name: jenkins-multijob-plugin
+  title: Jenkins Multijob plugin
+  version: '1.32'
+- name: jenkinseventbroker
+  title: Monitoring Event Broker
+  version: 2.0.2
+- name: jenkinslint
+  title: JenkinsLint Plugin
+  version: 0.14.0
+- name: jira
+  title: Jenkins JIRA plugin
+  version: 3.0.12
+- name: job-dsl
+  title: Job DSL
+  version: '1.76'
+- name: job-import-plugin
+  title: Job Import Plugin
+  version: '3.4'
+- name: job-restrictions
+  title: Job Restrictions Plugin
+  version: '0.8'
+- name: jobConfigHistory
+  title: Jenkins Job Configuration History Plugin
+  version: '2.24'
+- name: jquery
+  title: jQuery plugin
+  version: 1.12.4-1
+- name: jquery-detached
+  title: 'JavaScript GUI Lib: jQuery bundles (jQuery and jQuery UI) plugin'
+  version: 1.2.1
+- name: jquery-ui
+  title: Jenkins jQuery UI plugin
+  version: 1.0.2
+- name: jsch
+  title: Jenkins JSch dependency plugin
+  version: 0.1.55.2
+- name: junit
+  title: JUnit Plugin
+  version: '1.28'
+- name: kerberos-sso
+  title: Kerberos SSO plugin
+  version: '1.7'
+- name: kubernetes
+  title: Kubernetes plugin
+  version: 1.14.2
+- name: kubernetes-credentials
+  title: Kubernetes Credentials Plugin
+  version: 0.4.1
+- name: ldap
+  title: LDAP Plugin
+  version: '1.21'
+- name: lockable-resources
+  title: Lockable Resources plugin
+  version: '2.7'
+- name: log-parser
+  title: Log Parser Plugin
+  version: '2.1'
+- name: logfilesizechecker
+  title: Jenkins build log file size checker plugin
+  version: '1.5'
+- name: logstash
+  title: Logstash
+  version: 2.3.2
+- name: mailer
+  title: Jenkins Mailer Plugin
+  version: '1.30'
+- name: managed-scripts
+  title: Managed Scripts
+  version: '1.4'
+- name: mapdb-api
+  title: MapDB API Plugin
+  version: 1.0.9.0
+- name: mask-passwords
+  title: Mask Passwords Plugin
+  version: 2.12.0
+- name: matrix-auth
+  title: Matrix Authorization Strategy Plugin
+  version: '2.5'
+- name: matrix-project
+  title: Matrix Project Plugin
+  version: '1.14'
+- name: mattermost
+  title: Mattermost Notification Plugin
+  version: 2.7.1
+- name: maven-artifact-choicelistprovider
+  title: Maven Artifact ChoiceListProvider (Nexus)
+  version: 1.5.1
+- name: maven-metadata-plugin
+  title: Maven Metadata Plugin for Jenkins CI server
+  version: 2.0.0
+- name: maven-plugin
+  title: Maven Integration plugin
+  version: '3.4'
+- name: mercurial
+  title: Jenkins Mercurial plugin
+  version: '2.8'
+- name: metrics
+  title: Metrics Plugin
+  version: 4.0.2.6
+- name: metrics-graphite
+  title: Metrics Graphite Reporting Plugin
+  version: 3.0.0
+- name: momentjs
+  title: 'JavaScript GUI Lib: Moment.js bundle plugin'
+  version: 1.1.1
+- name: monitoring
+  title: Monitoring
+  version: 1.81.0
+- name: nexus-artifact-uploader
+  title: Nexus Artifact Uploader
+  version: '2.10'
+- name: nodelabelparameter
+  title: Node and Label parameter plugin
+  version: 1.7.2
+- name: openshift-client
+  title: OpenShift Client Jenkins Plugin
+  version: 1.0.30
+- name: openshift-sync
+  title: OpenShift Sync
+  version: 1.0.36
+- name: openstack-cloud
+  title: OpenStack Cloud Plugin
+  version: '2.51'
+- name: ownership
+  title: Job and Node ownership plugin
+  version: 0.12.2-SNAPSHOT
+- name: pam-auth
+  title: PAM Authentication plugin
+  version: '1.6'
+- name: Parameterized-Remote-Trigger
+  title: Parameterized Remote Trigger Plugin
+  version: 3.1.1
+- name: parameterized-trigger
+  title: Jenkins Parameterized Trigger plugin
+  version: '2.36'
+- name: performance
+  title: Performance Plugin
+  version: '3.17'
+- name: pipeline-build-step
+  title: 'Pipeline: Build Step'
+  version: '2.11'
+- name: pipeline-graph-analysis
+  title: Pipeline Graph Analysis Plugin
+  version: '1.9'
+- name: pipeline-input-step
+  title: 'Pipeline: Input Step'
+  version: '2.11'
+- name: pipeline-maven
+  title: Pipeline Maven Integration Plugin
+  version: 3.7.1
+- name: pipeline-milestone-step
+  title: 'Pipeline: Milestone Step'
+  version: 1.3.1
+- name: pipeline-model-api
+  title: 'Pipeline: Model API'
+  version: 1.3.3
+- name: pipeline-model-declarative-agent
+  title: 'Pipeline: Declarative Agent API'
+  version: 1.1.1
+- name: pipeline-model-definition
+  title: 'Pipeline: Declarative'
+  version: 1.3.3
+- name: pipeline-model-extensions
+  title: 'Pipeline: Declarative Extension Points API'
+  version: 1.3.3
+- name: pipeline-rest-api
+  title: 'Pipeline: REST API Plugin'
+  version: '2.13'
+- name: pipeline-stage-step
+  title: 'Pipeline: Stage Step'
+  version: '2.3'
+- name: pipeline-stage-tags-metadata
+  title: 'Pipeline: Stage Tags Metadata'
+  version: 1.3.3
+- name: pipeline-stage-view
+  title: 'Pipeline: Stage View Plugin'
+  version: '2.13'
+- name: pipeline-utility-steps
+  title: Pipeline Utility Steps
+  version: 2.5.0
+- name: plain-credentials
+  title: Plain Credentials Plugin
+  version: '1.7'
+- name: postbuildscript
+  title: Jenkins PostBuildScript Plugin
+  version: 2.9.1
+- name: powershell
+  title: Jenkins PowerShell plugin
+  version: '1.4'
+- name: promoted-builds
+  title: Jenkins promoted builds plugin
+  version: '3.5'
+- name: publish-over
+  title: Infrastructure plugin for Publish Over X
+  version: '0.22'
+- name: publish-over-cifs
+  title: Publish Over CIFS
+  version: '0.12'
+- name: publish-over-ssh
+  title: Publish Over SSH
+  version: 1.20.1
+- name: pubsub-light
+  title: Jenkins Pub-Sub "light" Bus
+  version: '1.13'
+- name: rebuild
+  title: Rebuilder
+  version: '1.31'
+- name: repository-connector
+  title: Repository Connector
+  version: 1.2.6
+- name: resource-disposer
+  title: Resource Disposer Plugin
+  version: '0.14'
+- name: role-strategy
+  title: Role-based Authorization Strategy
+  version: '2.16'
+- name: run-condition
+  title: Run Condition Plugin
+  version: '1.2'
+- name: schedule-build
+  title: Schedule Build Plugin
+  version: 0.5.1
+- name: scm-api
+  title: SCM API Plugin
+  version: 2.6.3
+- name: script-security
+  title: Script Security Plugin
+  version: '1.73'
+- name: scriptler
+  title: Scriptler
+  version: '2.9'
+- name: scripttrigger
+  title: scripttrigger
+  version: '0.34'
+- name: simple-theme-plugin
+  title: Simple Theme Plugin
+  version: '0.6'
+- name: skip-certificate-check
+  title: skip-certificate-check
+  version: '1.0'
+- name: splunk-devops
+  title: Splunk Plugin
+  version: 1.8.1
+- name: splunk-devops-extend
+  title: Splunk Plugin Extension
+  version: 1.8.1
+- name: sqlplus-script-runner
+  title: SQLPlus Script Runner
+  version: 2.0.9
+- name: sse-gateway
+  title: Server Sent Events (SSE) Gateway Plugin
+  version: '1.20'
+- name: ssh
+  title: Jenkins SSH plugin
+  version: 2.6.1
+- name: ssh-agent
+  title: SSH Agent Plugin
+  version: '1.19'
+- name: ssh-credentials
+  title: SSH Credentials Plugin
+  version: '1.18.1'
+- name: ssh-slaves
+  title: Jenkins SSH Slaves plugin
+  version: 1.31.1
+- name: strict-crumb-issuer
+  title: Strict Crumb Issuer
+  version: 2.1.0
+- name: structs
+  title: Structs Plugin
+  version: '1.20'
+- name: subversion
+  title: Jenkins Subversion Plug-in
+  version: 2.13.1
+- name: throttle-concurrents
+  title: Jenkins Throttle Concurrent Builds Plug-in
+  version: 2.0.1
+- name: timestamper
+  title: Timestamper
+  version: '1.11.2'
+- name: token-macro
+  title: Token Macro Plugin
+  version: '2.10'
+- name: translation
+  title: Jenkins Translation Assistance plugin
+  version: '1.16'
+- name: trilead-api
+  title: Trilead API Plugin
+  version: 1.0.5
+- name: uno-choice
+  title: Active Choices Plug-in
+  version: '2.2.2'
+- name: update-sites-manager
+  title: UpdateSites Manager plugin
+  version: 2.0.0
+- name: urltrigger
+  title: Jenkins URLTrigger Plug-in
+  version: '0.47'
+- name: variant
+  title: Variant Plugin
+  version: '1.3'
+- name: view-job-filters
+  title: View Job Filters
+  version: 2.1.1
+- name: was-builder
+  title: WAS Builder Plugin
+  version: 1.6.1
+- name: windows-slaves
+  title: WMI Windows Agents Plugin
+  version: '1.6'
+- name: workflow-aggregator
+  title: Pipeline
+  version: '2.6'
+- name: workflow-api
+  title: 'Pipeline: API'
+  version: '2.39'
+- name: workflow-basic-steps
+  title: 'Pipeline: Basic Steps'
+  version: '2.19'
+- name: workflow-cps
+  title: 'Pipeline: Groovy'
+  version: '2.79'
+- name: workflow-cps-global-lib
+  title: 'Pipeline: Shared Groovy Libraries'
+  version: '2.15'
+- name: workflow-durable-task-step
+  title: 'Pipeline: Nodes and Processes'
+  version: '2.35'
+- name: workflow-job
+  title: 'Pipeline: Job'
+  version: '2.25'
+- name: workflow-multibranch
+  title: 'Pipeline: Multibranch'
+  version: '2.21'
+- name: workflow-scm-step
+  title: 'Pipeline: SCM Step'
+  version: '2.10'
+- name: workflow-step-api
+  title: 'Pipeline: Step API'
+  version: '2.22'
+- name: workflow-support
+  title: 'Pipeline: Supporting APIs'
+  version: '3.4'
+- name: ws-cleanup
+  title: Jenkins Workspace Cleanup Plugin
+  version: '0.38'
+- name: xunit
+  title: xUnit plugin
+  version: 2.3.7
