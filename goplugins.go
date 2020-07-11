@@ -12,7 +12,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/zenthangplus/goccm"
+	"github.com/vadikgo/goccm"
 
 	"github.com/goccy/go-yaml"
 	"github.com/hashicorp/go-version"
