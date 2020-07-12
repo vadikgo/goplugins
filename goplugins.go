@@ -270,7 +270,7 @@ func main() {
 					if old.Lock {
 						fmt.Printf("%s: o %s\n", old.Name, old.Version)
 					} else {
-						fmt.Printf("%s: %s\n", old.Name, old.Version)
+						// fmt.Printf("%s: %s\n", old.Name, old.Version)
 					}
 				}
 				break
