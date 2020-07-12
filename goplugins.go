@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -54,10 +55,13 @@ var (
 	versionURL     = "https://updates.jenkins-ci.org/download/plugins"
 	cache          = SafePluginInfo{plugins: make(map[string]PluginInfo)}
 	upgraded       = SafePluginInfo{plugins: make(map[string]PluginInfo)}
-	jenkinsVersion = "2.222.2"
-	pluginsYaml    = "jenkins_plugins_test.yml"
+	jenkinsVersion = flag.String("jenkins", "2.222.2", "Jenkins version for check compatibility")
 	gomax          = runtime.GOMAXPROCS(0) * 2 // goroutines to run concurrently
-	// gomax = 1
+	showVersion    = flag.Bool("version", false, "Print version information.")
+	pluginsYaml    = flag.String("src", "jenkins_plugins_test.yml", "Source file with jenkins_plugins")
+	updatedYaml    = flag.String("dest", "jenkins_plugins_latest.yml", "YAML with updated plugins versions")
+	buildstamp     = "current"
+	githash        = "current"
 )
 
 // SetValue Set Value in cache thread safe
@@ -106,7 +110,7 @@ func readPluginInfo(name string, version string) PluginInfo {
 			LongName:           name,
 			Version:            version,
 			Dependencies:       make([]ShortPluginInfo, 0),
-			JenkinsVersion:     jenkinsVersion,
+			JenkinsVersion:     *jenkinsVersion,
 			MinimumJavaVersion: "1.8",
 		}
 		cache.SetValue(name+version, newPluginInfo)
@@ -146,7 +150,7 @@ func readPluginInfo(name string, version string) PluginInfo {
 		}
 	}
 	if _, ok := manifest["Jenkins-Version"]; !ok {
-		manifest["Jenkins-Version"] = jenkinsVersion
+		manifest["Jenkins-Version"] = *jenkinsVersion
 	}
 	newPluginInfo := PluginInfo{
 		Name:               manifest["Short-Name"],
@@ -173,9 +177,9 @@ func isAddPlugin(hpiInfo PluginInfo) bool {
 	if err != nil {
 		log.Fatalf("error: %v %s", err, hpiInfo.JenkinsVersion)
 	}
-	currentJenkins, err := version.NewVersion(jenkinsVersion)
+	currentJenkins, err := version.NewVersion(*jenkinsVersion)
 	if err != nil {
-		log.Fatalf("error: %v %s", err, jenkinsVersion)
+		log.Fatalf("error: %v %s", err, *jenkinsVersion)
 	}
 	if currentJenkins.LessThan(jv) {
 		return false
@@ -184,7 +188,14 @@ func isAddPlugin(hpiInfo PluginInfo) bool {
 }
 
 func main() {
-	yamlFile, err := ioutil.ReadFile(pluginsYaml)
+	flag.Parse()
+	if *showVersion {
+		fmt.Fprintln(os.Stdout, "Git Commit Hash:", githash)
+		fmt.Fprintln(os.Stdout, "Build Time:", buildstamp)
+		os.Exit(0)
+	}
+
+	yamlFile, err := ioutil.ReadFile(*pluginsYaml)
 	if err != nil {
 		log.Fatalf("Error reading YAML file: %s\n", err)
 	}
@@ -199,7 +210,6 @@ func main() {
 	}
 	// fmt.Printf("--- plugins:\n%v\n\n", plugins)
 
-	// Limit 16 goroutines to run concurrently.
 	c := goccm.New(gomax)
 	for _, plg := range plugins {
 		c.Wait()
@@ -263,11 +273,45 @@ func main() {
 						fmt.Printf("%s: %s\n", old.Name, old.Version)
 					}
 				}
+				break
 			}
-
 		}
 		if !found {
 			fmt.Printf("%s: + %s\n", upgraded.GetValue(key).Name, upgraded.GetValue(key).Version)
 		}
 	}
+
+	jenkinsPlugins := make([]Plugin, 0)
+
+	//res.jenkinsPlugins = make([]Plugin, 0)
+
+	for _, key := range keys {
+		plLock := false
+		for _, old := range plugins {
+			if old.Name == key && old.Lock {
+				plLock = true
+				break
+			}
+		}
+		title := upgraded.GetValue(key).LongName
+		if strings.Index(title, ":") != -1 {
+			title = "\"" + title + "\""
+		}
+		jenkinsPlugins = append(jenkinsPlugins,
+			Plugin{Name: upgraded.GetValue(key).Name,
+				Title:   title,
+				Version: upgraded.GetValue(key).Version,
+				Lock:    plLock})
+	}
+
+	bytes, err := yaml.Marshal(jenkinsPlugins)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	f, err := os.Create(*updatedYaml)
+	defer f.Close()
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	f.WriteString(fmt.Sprintf("jenkins_plugins:\n%s", string(bytes)))
 }
