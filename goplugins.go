@@ -51,8 +51,6 @@ type SafePluginInfo struct {
 }
 
 var (
-	latestURL      = "https://updates.jenkins-ci.org/latest"
-	versionURL     = "https://updates.jenkins-ci.org/download/plugins"
 	cache          = SafePluginInfo{plugins: make(map[string]PluginInfo)}
 	upgraded       = SafePluginInfo{plugins: make(map[string]PluginInfo)}
 	jenkinsVersion = flag.String("jenkins", "2.222.2", "Jenkins version for check compatibility")
@@ -62,6 +60,10 @@ var (
 	updatedYaml    = flag.String("dest", "jenkins_plugins_latest.yml", "YAML with updated plugins versions")
 	buildstamp     = "current"
 	githash        = "current"
+	updatesURL     = flag.String("plugins", "https://updates.jenkins-ci.org/download/plugins",
+		"Jenkins plugins updates site URL")
+	latestURL = flag.String("latest", "https://updates.jenkins-ci.org/latest",
+		"Jenkins plugins latest versions updates site URL")
 )
 
 // SetValue Set Value in cache thread safe
@@ -92,9 +94,9 @@ func readPluginInfo(name string, version string) PluginInfo {
 	}
 	var url string
 	if version != "" {
-		url = fmt.Sprintf("%s/%s/%s/%s.hpi", versionURL, name, version, name)
+		url = fmt.Sprintf("%s/%s/%s/%s.hpi", *updatesURL, name, version, name)
 	} else {
-		url = fmt.Sprintf("%s/%s.hpi", latestURL, name)
+		url = fmt.Sprintf("%s/%s.hpi", *latestURL, name)
 	}
 	resp, err := http.Get(url)
 	if err != nil {
