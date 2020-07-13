@@ -166,20 +166,31 @@ func readPluginInfo(name string, version string) PluginInfo {
 	return newPluginInfo
 }
 
+func versionFix(version string) string {
+	// Replace wrong chars in version
+	return strings.Split(strings.Replace(version, "_", "-", -1), " ")[0]
+}
+
 func isAddPlugin(hpiInfo PluginInfo) bool {
 	// Check is plugin can be added to pluginList
 	if upgraded.HasKey(hpiInfo.Name) {
-		v1, _ := version.NewVersion(upgraded.GetValue(hpiInfo.Name).Version)
-		v2, _ := version.NewVersion(hpiInfo.Version)
+		v1, err := version.NewVersion(versionFix(upgraded.GetValue(hpiInfo.Name).Version))
+		if err != nil {
+			log.Fatalf("Error version parsing: %s\n", err)
+		}
+		v2, err := version.NewVersion(versionFix(hpiInfo.Version))
+		if err != nil {
+			log.Fatalf("Error version parsing: %s\n", err)
+		}
 		if v1.GreaterThan(v2) {
 			return false
 		}
 	}
-	jv, err := version.NewVersion(hpiInfo.JenkinsVersion)
+	jv, err := version.NewVersion(versionFix(hpiInfo.JenkinsVersion))
 	if err != nil {
 		log.Fatalf("error: %v %s", err, hpiInfo.JenkinsVersion)
 	}
-	currentJenkins, err := version.NewVersion(*jenkinsVersion)
+	currentJenkins, err := version.NewVersion(versionFix(*jenkinsVersion))
 	if err != nil {
 		log.Fatalf("error: %v %s", err, *jenkinsVersion)
 	}
