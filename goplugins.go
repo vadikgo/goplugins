@@ -250,6 +250,22 @@ func main() {
 			// Check dependency plugins can be installed
 			for _, depPlugin := range plgInfo.Dependencies {
 				depPluginInfo := readPluginInfo(depPlugin.Name, depPlugin.Version)
+				for _, basePlug := range plugins {
+					// Check locked versions
+					if basePlug.Name == depPluginInfo.Name && basePlug.Lock {
+						oldVer, err := version.NewVersion(basePlug.Version)
+						if err != nil {
+							log.Fatalf("Error version parsing: %s\n", err)
+						}
+						newVer, err := version.NewVersion(depPluginInfo.Version)
+						if err != nil {
+							log.Fatalf("Error version parsing: %s\n", err)
+						}
+						if newVer.GreaterThan(oldVer) {
+							return
+						}
+					}
+				}
 				if isAddPlugin(depPluginInfo) {
 					upgraded.SetValue(depPlugin.Name, readPluginInfo(depPlugin.Name, depPlugin.Version))
 				}
