@@ -264,7 +264,7 @@ func main() {
 						if newVer.GreaterThan(oldVer) {
 							// plugin dependecy contain never than locked plugin
 							// add parent plugin in current version
-							upgraded.SetValue(plg.Name, plgInfo)
+							upgraded.SetValue(plg.Name, readPluginInfo(plg.Name, plg.Version))
 							return
 						}
 					}
