@@ -262,6 +262,9 @@ func main() {
 							log.Fatalf("Error version parsing: %s\n", err)
 						}
 						if newVer.GreaterThan(oldVer) {
+							// plugin dependecy contain never than locked plugin
+							// add parent plugin in current version
+							upgraded.SetValue(plg.Name, plgInfo)
 							return
 						}
 					}
