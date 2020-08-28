@@ -1,3 +1,4 @@
 jenkins_plugins_latest.yml
 goplugins
 *.zip
+test.go
