@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/vadikgo/goccm"
 
@@ -64,6 +65,7 @@ var (
 		"Jenkins plugins updates site URL")
 	latestURL = flag.String("latest", "https://updates.jenkins-ci.org/latest",
 		"Jenkins plugins latest versions updates site URL")
+	timeout = flag.Int("timeout", 30, "HTTP timeout, sec.")
 )
 
 // SetValue Set Value in cache thread safe
@@ -98,7 +100,10 @@ func readPluginInfo(name string, version string) PluginInfo {
 	} else {
 		url = fmt.Sprintf("%s/%s.hpi", *latestURL, name)
 	}
-	resp, err := http.Get(url)
+	client := http.Client{
+		Timeout: time.Duration(*timeout) * time.Second,
+	}
+	resp, err := client.Get(url)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
