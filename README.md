@@ -11,3 +11,9 @@ Usage of ./goplugins:
   -version
       Print version information.
 ```
+
+## build with version info
+
+```bash
+go build -ldflags="-X \"main.buildstamp=$(date)\" -X \"main.githash=$(git rev-parse HEAD)\"" goplugins.go
+```
