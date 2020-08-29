@@ -17,3 +17,15 @@ Usage of ./goplugins:
 ```bash
 go build -ldflags="-X \"main.buildstamp=$(date)\" -X \"main.githash=$(git rev-parse HEAD)\"" goplugins.go
 ```
+
+## build linux binary in docker
+
+```bash
+docker run -it --name centos7 -v $(pwd):/devel centos:7 bash
+yum install epel-release -y
+yum install golang zip -y
+cd /devel
+egrep -o '"github.com.+' goplugins.go | xargs -I {} go get {}
+go build -ldflags="-X \"main.buildstamp=$(date)\" -X \"main.githash=$(git rev-parse HEAD)\"" goplugins.go
+zip goplugins-linux-amd64.zip goplugins
+```
